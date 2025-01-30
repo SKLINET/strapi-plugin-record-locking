@@ -53,6 +53,20 @@ const useLockStatus = () => {
     });
   }, []);
 
+  const attemptEntityLocking = async () => {
+    try {
+      const lockingResponse = await get(lockingData?.requestUrl || '');
+      if (!lockingResponse.data) {
+        socket.current?.emit('openEntity', lockingData?.requestData);
+      } else {
+        setIsLocked(true);
+        setUsername(lockingResponse.data.editedBy);
+      }
+    } catch (error) {
+      console.warn(error);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
@@ -80,20 +94,6 @@ const useLockStatus = () => {
   }, [settings]);
 
   if (!lockingData?.requestUrl) return null;
-
-  const attemptEntityLocking = async () => {
-    try {
-      const lockingResponse = await get(lockingData.requestUrl);
-      if (!lockingResponse.data) {
-        socket.current?.emit('openEntity', lockingData?.requestData);
-      } else {
-        setIsLocked(true);
-        setUsername(lockingResponse.data.editedBy);
-      }
-    } catch (error) {
-      console.warn(error);
-    }
-  };
 
   return {
     isLocked,
